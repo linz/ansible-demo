@@ -1,0 +1,7 @@
+---
+
+- hosts: db
+  roles:
+    - { role: service-database-test, tags: ['service-database'] }
+
+# vim: set ts=8 sts=2 sw=2 et:

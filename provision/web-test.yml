@@ -1,0 +1,12 @@
+---
+
+- hosts:
+    - db
+  name: Gather facts from other servers
+  tasks: [ ]
+
+- hosts: web
+  roles:
+    - { role: service-web-test, tags: ['service-web'] }
+
+# vim: set ts=8 sts=2 sw=2 et:

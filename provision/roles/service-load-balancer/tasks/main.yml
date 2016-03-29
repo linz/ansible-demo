@@ -1,0 +1,49 @@
+---
+
+################################################################################
+#
+# Copyright 2013 Crown copyright (c)
+# Land Information New Zealand and the New Zealand Government.
+# All rights reserved
+#
+# This program is released under the terms of the new BSD license. See the
+# LICENSE file for more information.
+#
+################################################################################
+
+#
+### HAPROXY SERVER ###
+#
+# Load balancer deployment.
+#
+
+- name: Install packages
+  apt:
+    pkg: "{{ item }}"
+    force: yes
+    install_recommends: no
+    state: latest
+  with_items:
+    - haproxy
+  environment: "{{ proxy_env }}"
+  become: yes
+
+
+### CONFIGURATION
+- name: Activate HAProxy server
+  template:
+    src: haproxy/haproxy.j2
+    dest: /etc/default/haproxy
+  notify:
+    - service haproxy restart
+  become: yes
+
+- name: Install HAProxy configuration template
+  template:
+    src: haproxy/haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify:
+    - service haproxy restart
+  become: yes
+
+# vim: set ts=8 sts=2 sw=2 et:

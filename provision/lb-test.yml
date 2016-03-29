@@ -1,0 +1,7 @@
+---
+
+- hosts: lb
+  roles:
+    - { role: service-load-balancer-test, tags: ['service-load-balancer'] }
+
+# vim: set ts=8 sts=2 sw=2 et:

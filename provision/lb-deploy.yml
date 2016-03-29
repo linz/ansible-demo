@@ -1,0 +1,8 @@
+---
+
+- hosts: lb
+  roles:
+    - { role: basic, tags: ['basic'] }
+    - { role: service-load-balancer, tags: ['service-load-balancer'] }
+
+# vim: set ts=8 sts=2 sw=2 et:

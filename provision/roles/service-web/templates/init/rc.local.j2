@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+pkill gunicorn | true
+
+gunicorn \
+    --daemon \
+    --name db-service \
+    --bind 0.0.0.0:8000 \
+    --pythonpath /opt \
+    db-stats:application
+
+exit 0
+
+# vim: set ts=8 sts=4 sw=4 et:

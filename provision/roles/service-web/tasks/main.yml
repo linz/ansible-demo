@@ -1,0 +1,102 @@
+---
+
+################################################################################
+#
+# Copyright 2013 Crown copyright (c)
+# Land Information New Zealand and the New Zealand Government.
+# All rights reserved
+#
+# This program is released under the terms of the new BSD license. See the
+# LICENSE file for more information.
+#
+################################################################################
+
+#
+### WEB SERVICE ###
+#
+# Simple web service deployment with underlying database creation and load
+# balancer join.
+#
+
+- name: Install packages
+  apt:
+    pkg: "{{ item }}"
+    force: yes
+    install_recommends: no
+    state: latest
+  with_items:
+    - gunicorn
+    - python-psycopg2
+  environment: "{{ proxy_env }}"
+  become: yes
+
+
+### DATABASE CREATION
+- name: Create database
+  postgresql_db:
+    name: "{{ WEB_DATABASE }}"
+    encoding: 'UTF-8'
+    template: template_postgis
+    state: present
+  become: yes
+  become_user: postgres
+  delegate_to: db
+
+- name: Create database user
+  postgresql_user:
+    name: "{{ WEB_USER_NAME }}"
+    password: "{{ WEB_USER_PASSWORD }}"
+    state: present
+  become: yes
+  become_user: postgres
+  delegate_to: db
+
+- name: Grant database user privileges
+  postgresql_privs:
+    db: "{{ WEB_DATABASE }}"
+    type: group
+    objs: dbusers
+    roles: "{{ WEB_USER_NAME }}"
+    state: present
+  become: yes
+  become_user: postgres
+  delegate_to: db
+
+
+### DEPLOYMENT
+- name: Install db-stats configuration
+  template:
+    src: db-stats/db-stats.conf.j2
+    dest: /etc/db-stats.conf
+  become: yes
+
+- name: Install db-stats script
+  copy:
+    src: static/db-stats/db-stats.py
+    dest: /opt/db-stats.py
+  become: yes
+
+- name: Install db-stats service
+  template:
+    src: init/rc.local.j2
+    dest: /etc/rc.local
+  become: yes
+
+- name: Start db-stats service
+  command: /etc/rc.local
+  become: yes
+
+
+### LOAD BALANCER JOIN
+- name: Add web service to load balancer
+  shell: >
+    sed -i "/server {{ ansible_eth1.ipv4.address }}/d" /etc/haproxy/haproxy.cfg
+    &&
+    echo "server {{ ansible_eth1.ipv4.address }} {{ ansible_eth1.ipv4.address }}:8000 check observe layer7"
+    >> /etc/haproxy/haproxy.cfg
+    &&
+    service haproxy reload
+  become: yes
+  delegate_to: lb
+
+# vim: set ts=8 sts=2 sw=2 et:

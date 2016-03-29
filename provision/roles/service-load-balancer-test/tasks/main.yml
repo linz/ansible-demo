@@ -1,0 +1,24 @@
+---
+
+################################################################################
+#
+# Copyright 2013 Crown copyright (c)
+# Land Information New Zealand and the New Zealand Government.
+# All rights reserved
+#
+# This program is released under the terms of the new BSD license. See the
+# LICENSE file for more information.
+#
+################################################################################
+
+#
+### LOAD BALANCER TESTS
+#
+
+- name: Test if load balancer is up and running
+  shell: >
+    curl -k -I "http://localhost:8100"
+    | grep "HTTP/1.0 200 OK"
+  changed_when: False
+
+# vim: set ts=8 sts=2 sw=2 et:

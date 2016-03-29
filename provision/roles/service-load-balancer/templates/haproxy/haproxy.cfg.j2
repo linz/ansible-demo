@@ -1,0 +1,38 @@
+global
+   log 127.0.0.1 local0 warning
+    maxconn 2000
+    user haproxy
+    group haproxy
+
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    option redispatch
+    retries 3
+    maxconn 2000
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
+
+listen lbstats 0.0.0.0:8100
+    mode http
+    stats enable
+    stats hide-version
+    stats realm Haproxy\ Statistics
+    stats uri /
+
+listen lbservice 0.0.0.0:80
+    mode http
+    stats enable
+    stats hide-version
+    stats uri /haproxy?stats
+    stats refresh 3s
+    option httpchk GET / HTTP/1.1\r\nHost:\ web
+    balance static-rr
+    fullconn 150
+    maxconn 1000
+    default-server error-limit 1 on-error fail-check fall 1 inter 2s fastinter 2s downinter 2s rise 2 maxconn 100 maxqueue 25 minconn 25 weight 128
+
+    # list of worker nodes

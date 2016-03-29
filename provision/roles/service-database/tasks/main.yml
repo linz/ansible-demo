@@ -1,0 +1,212 @@
+---
+
+################################################################################
+#
+# Copyright 2013 Crown copyright (c)
+# Land Information New Zealand and the New Zealand Government.
+# All rights reserved
+#
+# This program is released under the terms of the new BSD license. See the
+# LICENSE file for more information.
+#
+################################################################################
+
+#
+### DATABASE SERVICE - POSTGRESQL/POSTGIS ###
+#
+# Database server deployment and creation of spatial database template.
+#
+
+- name: Install packages
+  apt:
+    pkg: "{{ item }}"
+    force: yes
+    install_recommends: no
+    state: latest
+  with_items:
+    - libpq-dev
+    - postgresql-9.3
+    - postgresql-comparator
+    - postgresql-contrib
+    - postgis
+    - postgresql-9.3-postgis-2.1
+    - python-psycopg2
+  environment: "{{ proxy_env }}"
+  become: yes
+
+
+### VARIABLES
+- name: Detect PostgreSQL version
+  shell: >
+    pg_config --version
+    | awk -F ' ' '{print $2}'
+    | awk -F '.' '{print $1 "." $2}'
+  register: pg_version
+  changed_when: False
+
+- name: Detect PostgreSQL shared dir
+  shell: pg_config --sharedir
+  register: pg_sharedir
+  changed_when: False
+
+
+### CONFIGURATION
+- name: Configure PostgreSQL access policy
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {
+        src: postgresql/pg_hba.conf.j2,
+        dest: "/etc/postgresql/{{ pg_version.stdout }}/main/pg_hba.conf"
+      }
+    - {
+        src: postgresql/pg_ident.conf.j2,
+        dest: "/etc/postgresql/{{ pg_version.stdout }}/main/pg_ident.conf"
+      }
+  notify:
+    - service postgresql restart
+  become: yes
+
+- name: Enable PostgreSQL remote connections
+  lineinfile:
+    dest: "/etc/postgresql/{{ pg_version.stdout }}/main/postgresql.conf"
+    regexp: ".*listen_addresses.*="
+    line: "listen_addresses = '*'"
+    state: present
+  notify:
+    - service postgresql restart
+  become: yes
+
+
+# ROLES
+- name: Create database superusers group
+  postgresql_user:
+    name: dbadmins
+    role_attr_flags: CREATEDB,CREATEROLE,SUPERUSER,NOLOGIN
+    state: present
+  become: yes
+  become_user: postgres
+
+- name: Create database users group
+  postgresql_user:
+    name: dbusers
+    role_attr_flags: NOCREATEDB,NOCREATEROLE,NOSUPERUSER,NOLOGIN
+    state: present
+  become: yes
+  become_user: postgres
+
+
+# POSTGIS TEMPLATE
+# template creation
+- name: Remove template status from PostGIS template database if exists
+  command: >
+    psql
+    -U postgres
+    -c "UPDATE pg_database SET datistemplate='false' WHERE datname='template_postgis';"
+  become: yes
+  become_user: postgres
+
+- name: Drop PostGIS template database if exists
+  postgresql_db:
+    name: template_postgis
+    state: absent
+  become: yes
+  become_user: postgres
+
+- name: Create PostGIS template database
+  postgresql_db:
+    name: template_postgis
+    encoding: 'UTF-8'
+    template: template0
+    state: present
+  become: yes
+  become_user: postgres
+
+- name: Add PostGIS support to PostGIS template database
+  command: >
+    psql
+    -U postgres
+    -d template_postgis
+    -c "{{ item }}"
+  with_items:
+    - CREATE EXTENSION postgis
+    - CREATE EXTENSION postgis_topology
+  become: yes
+  become_user: postgres
+
+
+# permissions
+- name: Set permissions to PostGIS template database
+  command: >
+    psql
+    -U postgres
+    -d template_postgis
+    -c "{{ item }}"
+  with_items:
+    - REVOKE ALL ON SCHEMA public FROM PUBLIC
+
+    - GRANT USAGE ON SCHEMA public TO PUBLIC
+    - GRANT ALL ON SCHEMA public TO postgres
+
+    - GRANT SELECT, UPDATE, INSERT, DELETE ON geometry_columns TO PUBLIC
+    - GRANT SELECT, UPDATE, INSERT, DELETE ON geography_columns TO PUBLIC
+    - GRANT SELECT, UPDATE, INSERT, DELETE ON spatial_ref_sys TO PUBLIC
+    - GRANT USAGE ON SCHEMA topology TO PUBLIC
+    - GRANT SELECT, UPDATE, INSERT, DELETE ON topology.layer TO PUBLIC
+    - GRANT SELECT, UPDATE, INSERT, DELETE ON topology.topology TO PUBLIC
+  become: yes
+  become_user: postgres
+
+
+# extensions
+- name: Add PostgreSQL Comparator support to PostGIS template database
+  command: >
+    psql
+    -U postgres
+    -d template_postgis
+    -f {{ pg_sharedir.stdout }}/"{{ item }}"
+  with_items:
+    - contrib/pgc_checksum.sql
+    - contrib/pgc_casts.sql
+    - contrib/xor_aggregate.sql
+  become: yes
+  become_user: postgres
+
+- name: Vacuum FULL PostGIS template database
+  command: >
+    psql
+    -U postgres
+    -d template_postgis
+    -c "VACUUM FULL;"
+  become: yes
+  become_user: postgres
+
+
+# cleanup and final configuration
+- name: Vacuum FREEZE PostGIS template database
+  command: >
+    psql
+    -U postgres
+    -d template_postgis
+    -c "VACUUM FREEZE;"
+  become: yes
+  become_user: postgres
+
+- name: Set template status to PostGIS template database
+  command: >
+    psql
+    -U postgres
+    -c "UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';"
+  become: yes
+  become_user: postgres
+
+- name: Do not accept any connections to PostGIS template database
+  command: >
+    psql
+    -U postgres
+    -c "UPDATE pg_database SET datallowconn='false' WHERE datname='template_postgis';"
+  become: yes
+  become_user: postgres
+
+# vim: set ts=8 sts=2 sw=2 et:

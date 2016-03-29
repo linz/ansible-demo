@@ -1,0 +1,75 @@
+---
+
+################################################################################
+#
+# Copyright 2013 Crown copyright (c)
+# Land Information New Zealand and the New Zealand Government.
+# All rights reserved
+#
+# This program is released under the terms of the new BSD license. See the
+# LICENSE file for more information.
+#
+################################################################################
+
+#
+# BASIC SYSTEM CONFIGURATION
+#
+# System update, basic system configuration and installation of some basic
+# packages.
+#
+
+### SANITY CHECKS
+- name: Check Ansible version (== 2)
+  assert:
+    that:
+      - ansible_version.major == 2
+
+
+### SECRET VARIABLES
+- name: Load encrypted variables file
+  include_vars: secret-vars.yml
+
+
+### SYSTEM CONFIGURATION
+- name: Generate locale
+  locale_gen:
+    name: en_US.UTF-8
+    state: present
+  become: yes
+
+
+### PACKAGES
+- name: Install Apt repositories configuration
+  template:
+    src: apt/sources.list.j2
+    dest: /etc/apt/sources.list
+  become: yes
+
+- name: Update Apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  environment: "{{ proxy_env }}"
+  become: yes
+
+- name: Upgrade system
+  apt:
+    upgrade: full
+    force: yes
+  environment: "{{ proxy_env }}"
+  become: yes
+
+- name: Install packages
+  apt:
+    pkg: "{{ item }}"
+    force: yes
+    install_recommends: no
+    state: latest
+  with_items:
+    - htop
+    - mc
+    - tmux
+  environment: "{{ proxy_env }}"
+  become: yes
+
+# vim: set ts=8 sts=2 sw=2 et:

@@ -1,0 +1,24 @@
+---
+
+################################################################################
+#
+# Copyright 2013 Crown copyright (c)
+# Land Information New Zealand and the New Zealand Government.
+# All rights reserved
+#
+# This program is released under the terms of the new BSD license. See the
+# LICENSE file for more information.
+#
+################################################################################
+
+#
+### WEB SERVICE TESTS
+#
+
+- name: Test if web service is up and running
+  shell: >
+    curl -k -I "http://localhost:8000"
+    | grep "HTTP/1.1 200 OK"
+  changed_when: False
+
+# vim: set ts=8 sts=2 sw=2 et:
