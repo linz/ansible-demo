@@ -27,7 +27,7 @@
 
 ### SECRET VARIABLES
 - name: Load encrypted variables file
-  include_vars: secret-vars.yml
+  include_vars: secret_vars/secret-vars.yml
 
 
 ### SYSTEM CONFIGURATION
