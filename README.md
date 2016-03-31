@@ -12,14 +12,13 @@ deployment of development and production infrastructure.
 * **Ansible**              - infrastructure orchestration
 
 
-# Basic knowledge
-## YAML
-
+# YAML
 A straightforward machine parseable data serialization format designed for:
 * human readability
 * interaction with scripting languages
 
-## Ansible
+
+# Ansible
 Ansible is written in Python and it is using YAML for configuration. It is using
 SSH to connect to servers. Ansible executes *playbooks*, which are the
 definitions of tasks and environment to execute.  
@@ -28,9 +27,11 @@ The goal of a play is to map a group of hosts to some well defined *roles*,
 represented by things Ansible calls *tasks*. At a basic level, a task is nothing
 more than a call to an Ansible module.  
 
-Whole process of playbook execution must be *idempotent*.
+Playbook execution is usually *idempotent* which means that it can be applied
+multiple times without changing the result beyond the initial application.
 
 
+## Introduction
 ### Tasks
 * create PostgreSQL user using 'shell' module (non-idempotent)  
 ```yaml
@@ -144,8 +145,20 @@ List of users:
 ### Roles
 * **role** - collection of tasks, templates, handlers and variables creating
              usually one service. Roles can be reusable !  
+```
+service-database
+├── handlers
+│   └── main.yml
+├── tasks
+│   └── main.yml
+└── templates
+    └── postgresql
+        ├── pg_hba.conf.j2
+        └── pg_ident.conf.j2
+```
 
-* **playbook** - collection of selected roles  
+### Playbook
+* collection of reusable roles describing particular service  
 ```yaml
 - hosts: db
   roles:
@@ -153,7 +166,7 @@ List of users:
     - { role: service-database }
 ```
 
-### Directories structure
+### Ansible directories structure
 ```
 ├── group_vars
 │   └── all
@@ -211,6 +224,7 @@ List of users:
 └── web-test.yml
 ```
 
+## Extra
 ### Tasks delegation
 * ask 'db' service to create user account from 'web' service
 ```yaml
@@ -232,6 +246,12 @@ List of users:
   delegate_to: lb
 ```
 
+### Vault - encrypted storage
+* edit variables in encrypted file  
+```sh
+$ ansible-vault edit provision/secret_vars/secret-vars.yml
+```
+
 ### Tests
 * integration test - test if database is running
 ```yaml
@@ -241,7 +261,7 @@ List of users:
 ```
 
 
-## Vagrant
+# Vagrant
 ### Vagrant file
 * configuration file written in Ruby  
 ```ruby
@@ -279,8 +299,6 @@ end
  * **vagrant ssh**        - connect to VM(s)
  * **vagrant halt**       - halt VM(s)
  * **vagrant destroy**    - delete VM(s)
-
-
 
 
 # Demonstration
@@ -338,7 +356,8 @@ $ sudo apt-get -f install
 ## Deployment
 * clone source code from Git  
 ```sh
-$ git clone <GIT-REPOSITORY-URL>
+$ git clone git@github.com:linz/ansible-demo.git
+$ cd ansible-demo
 ```
 
 * set APT_PROXY variable to Apt caching server if available (optional)  
