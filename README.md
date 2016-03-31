@@ -13,26 +13,22 @@ deployment of development and production infrastructure.
 
 
 # YAML
-A straightforward machine parseable data serialization format designed for:
+A straightforward machine parsable data serialization format designed for:
 * human readability
 * interaction with scripting languages
 
 
 # Ansible
 Ansible is written in Python and it is using YAML for configuration. It is using
-SSH to connect to servers. Ansible executes *playbooks*, which are the
-definitions of tasks and environment to execute.  
+*SSH* to connect to the servers. Ansible executes *playbooks*, which are the
+collections of tasks and configurations executed on defined groups servers.  
 
-The goal of a play is to map a group of hosts to some well defined *roles*,
-represented by things Ansible calls *tasks*. At a basic level, a task is nothing
-more than a call to an Ansible module.  
-
-Playbook execution is usually *idempotent* which means that it can be applied
+Playbook execution should be *idempotent*, which means that it can be applied
 multiple times without changing the result beyond the initial application.
 
 
 ## Introduction
-### Tasks
+### Tasks and modules
 * create PostgreSQL user using 'shell' module (non-idempotent)  
 ```yaml
 - name: Create 'dbuser' account in PostgreSQL db
@@ -114,6 +110,15 @@ List of users:
     dest: /etc/postgresql/9.3/main/pg_hba.conf
 ```
 
+### Files
+* script deployment  
+```yaml
+- name: Install db-stats script
+  copy:
+    src: static/db-stats/db-stats.py
+    dest: /opt/db-stats.py
+```
+
 ### Handlers
 * handler declaration  
 ```yaml
@@ -133,18 +138,10 @@ List of users:
     - service postgresql restart
 ```
 
-### Files
-* script deployment  
-```yaml
-- name: Install db-stats script
-  copy:
-    src: static/db-stats/db-stats.py
-    dest: /opt/db-stats.py
-```
-
 ### Roles
-* **role** - collection of tasks, templates, handlers and variables creating
-             usually one service. Roles can be reusable !  
+* **role** - collection of tasks, templates, files and handlers encapsulated to
+             to one logical unit called *role*, which is usually one service -
+             for example database. Roles are reusable !  
 ```
 service-database
 ├── handlers
@@ -158,7 +155,8 @@ service-database
 ```
 
 ### Playbook
-* collection of reusable roles describing particular service  
+* collection of roles describing one complete operation - for example server
+  deployment
 ```yaml
 - hosts: db
   roles:
@@ -304,9 +302,9 @@ end
 # Demonstration
 ## Services
 **Implemented services:**  
-* db  - database service
-* web - web service (simple app returning some data from db)
-* lb  - load balancer service on top of the web service
+* **db**  - database service
+* **web** - web service (simple app returning some data from db)
+* **lb**  - load balancer service on top of the web service
 
 **Active TCP ports forwarded from VMs to host machine:**  
 * db  - PostgreSQL          - vm: 5432, host: 15432
