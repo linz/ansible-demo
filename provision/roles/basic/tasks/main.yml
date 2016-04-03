@@ -66,6 +66,8 @@
     install_recommends: no
     state: latest
   with_items:
+    - curl
+    - git
     - htop
     - mc
     - tmux
