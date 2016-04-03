@@ -22,11 +22,6 @@ Vagrant.require_version ">= 1.7.0"
 box = "trusty-canonical"
 box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-i386-vagrant-disk1.box"
 
-# Override if Parallels
-if "parallels" == "parallels"
-   box = "parallels/ubuntu-14.04"
-   box_url = "https://vagrantcloud.com/parallels/ubuntu-14.04"
-end
 
 SERVERS = {
     # database
@@ -131,9 +126,13 @@ Vagrant.configure(2) do |config|
             end
 
             # Parallels
-            config.vm.provider :parallels do |vm|
-                # Auto-update Parallels Tools on the VM (takes a few minutes)
-                vm.update_guest_tools = true
+            server.vm.provider "parallels" do |pl, override|
+                override.box_url = "https://vagrantcloud.com/parallels/ubuntu-14.04"
+                override.vm.box = "parallels/ubuntu-14.04"
+
+                pl.update_guest_tools = true # Auto-update Parallels Tools on
+                                             # the VM (takes a few minutes)
+                pl.memory = cfg["memory"]
             end
         end
     end
