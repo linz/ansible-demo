@@ -18,8 +18,15 @@
 
 Vagrant.require_version ">= 1.7.0"
 
-BOX = "trusty-canonical"
-BOX_URL = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-i386-vagrant-disk1.box"
+# default to virtualbox
+box = "trusty-canonical"
+box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-i386-vagrant-disk1.box"
+
+# Override if Parallels
+if "parallels" == "parallels"
+   box = "parallels/ubuntu-14.04"
+   box_url = "https://vagrantcloud.com/parallels/ubuntu-14.04"
+end
 
 SERVERS = {
     # database
@@ -60,8 +67,8 @@ SERVERS = {
 
 Vagrant.configure(2) do |config|
 
-    config.vm.box = BOX
-    config.vm.box_url = BOX_URL
+    config.vm.box = box
+    config.vm.box_url = box_url
 
     config.ssh.forward_agent = true
     config.vm.synced_folder '.', '/vagrant'
@@ -121,6 +128,12 @@ Vagrant.configure(2) do |config|
                 vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
                 vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
 #               vb.gui = true
+            end
+
+            # Parallels
+            config.vm.provider :parallels do |vm|
+                # Auto-update Parallels Tools on the VM (takes a few minutes)
+                vm.update_guest_tools = true
             end
         end
     end

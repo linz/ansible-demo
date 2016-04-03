@@ -350,6 +350,26 @@ $ sudo apt-get -f install
 $ sudo apt-get -f install
 ```
 
+# Installation instructions - MacOSX using Parallels
+### Ansible
+* install Ansible  
+```sh
+$ sudo easy_install pip
+$ sudo pip install ansible
+```
+
+### Parallels
+* download and install Parallels 11
+  http://www.parallels.com/products/desktop/download/
+
+### Vagrant
+* download and install latest Vagrant package from
+  http://www.vagrantup.com/downloads.html  
+
+* install parallels plugin  
+```sh
+vagrant plugin install vagrant-parallels
+```
 
 ## Deployment
 * clone source code from Git  
