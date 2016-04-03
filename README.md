@@ -350,7 +350,7 @@ $ sudo apt-get -f install
 $ sudo apt-get -f install
 ```
 
-# Installation instructions - MacOSX using Parallels
+## Installation instructions - MacOSX using Parallels
 ### Ansible
 * install Ansible  
 ```sh
