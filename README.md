@@ -365,7 +365,7 @@ $ export APT_PROXY=http://<IP-ADDRESS>:<PORT>
 
 * start all services in virtual machines  
 ```sh
-$ vagrant up
+$ vagrant up --no-parallel
 ```
 
 * launch load balancer stats and web services in web browser  
