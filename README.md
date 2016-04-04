@@ -388,7 +388,7 @@ $ export APT_PROXY=http://<IP-ADDRESS>:<PORT>
 $ vagrant up --no-parallel
 ```
 
-''Note:'' If you are not running vagrant with VirtualBox, then you should specific the provider:
+**Note:** If you are not running vagrant with VirtualBox, then you should specific the provider:
 ```sh
 $ vagrant up --no-parallel --provider PROVIDER_NAME
 ```
