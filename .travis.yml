@@ -1,0 +1,33 @@
+---
+
+sudo: required
+dist: trusty
+language: generic
+
+
+before_install:
+  - sudo apt-get --assume-yes --force-yes install software-properties-common
+  - sudo apt-add-repository --yes ppa:ansible/ansible
+  - sudo apt-get update
+  - sudo apt-get --assume-yes --force-yes install ansible
+
+  - wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O- | sudo apt-key add -
+  - sudo sh -c 'echo "deb http://download.virtualbox.org/virtualbox/debian trusty contrib" > /etc/apt/sources.list.d/virtualbox.list'
+  - sudo apt-get update
+  - sudo apt-get --assume-yes --force-yes install build-essential linux-headers-$(uname -r) dkms
+  - sudo apt-get --assume-yes --force-yes install virtualbox-5.0
+
+  - wget https://releases.hashicorp.com/vagrant/1.7.4/vagrant_1.7.4_x86_64.deb
+  - sudo dpkg -i vagrant_1.7.4_x86_64.deb
+  - sudo apt-get --fix-missing install
+
+
+  # print memory utilization and running processes
+  - sudo free
+  - sudo ps aux
+
+
+script:
+  - vagrant up
+
+# vim: set ts=8 sts=2 sw=2 et:
