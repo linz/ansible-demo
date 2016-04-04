@@ -388,6 +388,11 @@ $ export APT_PROXY=http://<IP-ADDRESS>:<PORT>
 $ vagrant up --no-parallel
 ```
 
+''Note:'' If you are not running vagrant with VirtualBox, then you should specific the provider:
+```sh
+$ vagrant up --no-parallel --provider PROVIDER_NAME
+```
+
 * launch load balancer stats and web services in web browser  
 ```sh
 $ firefox http://localhost:18100/ http://localhost:10080/
