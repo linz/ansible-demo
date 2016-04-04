@@ -127,7 +127,7 @@ Vagrant.configure(2) do |config|
 
             # Parallels
             server.vm.provider "parallels" do |pl, override|
-                override.box_url = "https://vagrantcloud.com/parallels/ubuntu-14.04"
+                override.vm.box_url = "https://vagrantcloud.com/parallels/ubuntu-14.04"
                 override.vm.box = "parallels/ubuntu-14.04"
 
                 pl.update_guest_tools = true # Auto-update Parallels Tools on
