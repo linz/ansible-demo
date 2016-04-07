@@ -22,6 +22,7 @@ script:
     -i inventory/localhost
     --connection=local
     --sudo
+    --vault-password-file=ansible-password.txt
     provision/db-deploy.yml
 
 
