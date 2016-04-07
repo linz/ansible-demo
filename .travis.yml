@@ -1,5 +1,9 @@
 ---
 
+# Perform demonstration of build and integration tests on Travis CI for 'db'
+# service
+
+
 sudo: required
 dist: trusty
 language: generic
@@ -26,6 +30,7 @@ before_install:
 
 
 script:
+  # deployment
   - ansible-playbook
     -v
     -i inventory/localhost
@@ -34,6 +39,16 @@ script:
     --vault-password-file=ansible-password.txt
     provision/db-deploy.yml
 
+  # update
+  - ansible-playbook
+    -v
+    -i inventory/localhost
+    --connection=local
+    --sudo
+    --vault-password-file=ansible-password.txt
+    provision/db-deploy.yml
+
+  # tests
   - ansible-playbook
     -v
     -i inventory/localhost
