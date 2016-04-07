@@ -15,6 +15,10 @@ before_install:
   - for f in $(ls /etc/apt/sources.list.d); do cat /etc/apt/sources.list.d/$f; done
   - dpkg -l
 
+  # remove all additional repositories installed by Travis
+  - rm /etc/apt/sources.list.d/*
+
+  # install Ansible
   - sudo apt-get --assume-yes --force-yes install software-properties-common
   - sudo apt-add-repository --yes ppa:ansible/ansible
   - sudo apt-get update
