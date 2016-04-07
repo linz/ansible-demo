@@ -97,6 +97,9 @@ Vagrant.configure(2) do |config|
                     "web" => ["web_1", "web_2"],
                 }
                 ansible.verbose = "vv"
+                ansible.extra_vars = {
+                    repository_mirror: "nz.archive.ubuntu.com"
+                }
 
                 # load password from file if exists
                 if File.exist?('ansible-password.txt')
@@ -114,6 +117,9 @@ Vagrant.configure(2) do |config|
                     "web" => ["web_1", "web_2"],
                 }
                 ansible.verbose = "vv"
+                ansible.extra_vars = {
+                    repository_mirror: "nz.archive.ubuntu.com"
+                }
             end
 
             ### PROVIDERS CONFIGURATION
