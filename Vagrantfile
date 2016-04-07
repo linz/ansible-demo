@@ -20,7 +20,7 @@ Vagrant.require_version ">= 1.7.0"
 
 # default to virtualbox
 box = "trusty-canonical"
-box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-i386-vagrant-disk1.box"
+box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
 
 SERVERS = {
