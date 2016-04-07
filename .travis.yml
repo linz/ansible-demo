@@ -16,7 +16,7 @@ before_install:
   - dpkg -l
 
   # remove all additional repositories installed by Travis
-  - rm /etc/apt/sources.list.d/*
+  - rm -f /etc/apt/sources.list.d/*
 
   # install Ansible
   - sudo apt-get --assume-yes --force-yes install software-properties-common
