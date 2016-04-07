@@ -6,17 +6,19 @@ language: generic
 
 
 before_install:
-  - sudo apt-get --assume-yes --force-yes install software-properties-common
-  - sudo apt-add-repository --yes ppa:ansible/ansible
-  - sudo apt-get update
-  - sudo apt-get --assume-yes --force-yes install ansible
-
   # print memory utilization and running processes
   - free
   - ps aux
 
-  # print list of installed packages
+  # print list of installed repositories and packages
+  - cat /etc/apt/sources.list
+  - for f in $(ls /etc/apt/sources.list.d); do cat /etc/apt/sources.list.d/$f; done
   - dpkg -l
+
+  - sudo apt-get --assume-yes --force-yes install software-properties-common
+  - sudo apt-add-repository --yes ppa:ansible/ansible
+  - sudo apt-get update
+  - sudo apt-get --assume-yes --force-yes install ansible
 
 
 script:
