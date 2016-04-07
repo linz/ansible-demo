@@ -12,8 +12,11 @@ before_install:
   - sudo apt-get --assume-yes --force-yes install ansible
 
   # print memory utilization and running processes
-  - sudo free
-  - sudo ps aux
+  - free
+  - ps aux
+
+  # print list of installed packages
+  - dpkg -l
 
 
 script:
