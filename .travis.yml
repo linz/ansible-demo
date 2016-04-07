@@ -16,7 +16,7 @@ before_install:
   - dpkg -l
 
   # remove all additional repositories installed by Travis
-  - sudo rm -f /etc/apt/sources.list.d/*
+  - sudo rm -vf /etc/apt/sources.list.d/*
 
   # install Ansible
   - sudo apt-get --assume-yes --force-yes install software-properties-common
@@ -33,6 +33,14 @@ script:
     --sudo
     --vault-password-file=ansible-password.txt
     provision/db-deploy.yml
+
+  - ansible-playbook
+    -v
+    -i inventory/localhost
+    --connection=local
+    --sudo
+    --vault-password-file=ansible-password.txt
+    provision/db-test.yml
 
 
 # vim: set ts=8 sts=2 sw=2 et:
