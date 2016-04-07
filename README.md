@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/linz/ansible-demo.svg?branch=master)](https://travis-ci.org/linz/ansible-demo)
+
 # Automated Deployment Demonstration
 
 **This project is for demonstration purposes only. Don't use in production !**
